@@ -140,31 +140,6 @@ rec = allocs[choice]
 
 st.caption("Note: Third column is assumed to be **annual returns** (decimal or percent). We auto‑detect units.")
 
-HORIZON_HELP = (
-    "Perfect — here’s how horizon and loan term interact in your app:\n\n"
-    "⸻\n\n"
-    "1. When horizon < loan term\n"
-    "\t• You’re looking at results before the mortgage is fully paid off.\n"
-    "\t• The Borrow path still has a remaining balance (we subtract that in net worth).\n"
-    "\t• Example: 15-year horizon with a 30-year loan → Borrow still owes ~half the loan at the end, so Pay Cash often looks better unless markets were strong.\n\n"
-    "⸻\n\n"
-    "2. When horizon = loan term\n"
-    "\t• You measure exactly when the loan is fully paid off.\n"
-    "\t• The Borrow path’s remaining principal = $0 at the horizon.\n"
-    "\t• From this point on, both sides just have investments, so the comparison is “clean”: Did the lump-sum investing beat the gradual contributions?\n\n"
-    "⸻\n\n"
-    "3. When horizon > loan term\n"
-    "\t• Past the payoff date, the Borrow side no longer has debt — and no more monthly mortgage payments either.\n"
-    "\t• In your model:\n"
-    "\t• Pay Cash continues monthly investing for as long as horizon > 0.\n"
-    "\t• Borrow’s upfront lump keeps compounding (no more deductions for debt).\n"
-    "\t• This often tilts in favor of Borrow the longer the horizon goes past the loan term, because the lump had a head start.\n\n"
-    "⸻\n\n"
-    "👉 Key insight:\n"
-    "\t• Shorter horizons often favor Pay Cash (less risk, no debt left hanging).\n"
-    "\t• Longer horizons (beyond payoff) often favor Borrow if markets delivered historical returns, since the upfront lump had more time to work.\n"
-)
-
 st.subheader("Mortgage & Horizon")
 if mode == "Pay Cash vs Borrow":
     col1, col2, col3, col4 = st.columns(4)
@@ -175,7 +150,7 @@ if mode == "Pay Cash vs Borrow":
     with col3:
         term = st.number_input("Term (months)", min_value=12, max_value=600, value=360, step=12)
     with col4:
-        months = st.number_input("Horizon (months)", min_value=12, max_value=600, value=DEFAULT_MONTHS, step=12, help=HORIZON_HELP)
+        months = st.number_input("Horizon (months)", min_value=12, max_value=600, value=DEFAULT_MONTHS, step=12)
     # Monthly payment (used as contribution in Pay-Cash path while loan active)
     mpmt = amortized_payment(float(principal), float(apr_pct) / 100.0, int(term))
     st.info(f"Calculated monthly payment: ${mpmt:,.2f}")
@@ -188,7 +163,7 @@ else:
     with col3:
         term = st.number_input("Term (months)", min_value=12, max_value=600, value=360, step=12)
     with col4:
-        months = st.number_input("Horizon (months)", min_value=12, max_value=600, value=180, step=12, help=HORIZON_HELP)
+        months = st.number_input("Horizon (months)", min_value=12, max_value=600, value=180, step=12)
     col5, col6 = st.columns(2)
     with col5:
         down_small_pct = st.slider("Smaller Down Payment (%)", 0.0, 40.0, 5.0, step=0.5)
