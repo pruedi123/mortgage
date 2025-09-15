@@ -391,8 +391,4 @@ if st.button("▶ Compute Per-Start Rows + Probability Summary"):
             )
 
 with st.expander("Peek at first 12 annual inputs (raw)"):
-    try:
-        _a_preview = pd.Series(rec["annual_col"].astype(float)[:12], name="annual_col_raw")
-    except Exception:
-        _a_preview = pd.Series([], name="annual_col_raw")
-    st.write(_a_preview)
+    st.write(pd.Series(a[:12], name="annual_col_raw"))
