@@ -165,7 +165,6 @@ HORIZON_HELP = (
     "\t• Longer horizons (beyond payoff) often favor Borrow if markets delivered historical returns, since the upfront lump had more time to work.\n"
 )
 
-
 # Concise hover helper for chart interpretation
 CHART_HOVER = (
     "Each point shows the ending net worth for that start date at your chosen horizon (investments − remaining mortgage). "
@@ -179,18 +178,16 @@ CHART_TOOLTIP_CSS = '''
 .tooltip-box .tooltip-content {
     visibility: hidden; opacity: 0; transition: opacity .15s ease;
     position: absolute; left: 0; top: 1.8rem; z-index: 9999;
-    background: #475569 !important; /* slate-600 */
-    color: #f8fafc !important;      /* slate-50 */
-    padding: 16px 18px; border-radius: 10px; border: 1px solid #64748b; /* slate-500 */
+    background: #1f2937; color: #fff; padding: 16px 18px; border-radius: 10px;
     max-width: 760px; width: min(86vw, 760px);
-    font-size: 16px; line-height: 1.5; box-shadow: 0 10px 24px rgba(0,0,0,.35);
+    font-size: 15px; line-height: 1.45; box-shadow: 0 10px 24px rgba(0,0,0,.35);
 }
 .tooltip-box:hover .tooltip-content { visibility: visible; opacity: 1; }
 .tooltip-content h4 { margin: 0 0 8px 0; font-weight: 700; }
-.tooltip-content .hr { margin: 10px 0; border-top: 1px solid #64748b; }
+.tooltip-content .hr { margin: 10px 0; border-top: 1px solid #334155; }
 .tooltip-content ul { margin: 0 0 0 1.2rem; padding: 0; }
 .tooltip-content li { margin: 6px 0; }
-.tooltip-content code { background: #1e293b; color: #e2e8f0; padding: 0 4px; border-radius: 4px; }
+.tooltip-content code { background: #0f172a; padding: 0 4px; border-radius: 4px; }
 </style>
 '''
 
@@ -228,26 +225,6 @@ CHART_TOOLTIP_HTML = '''
 </div>
 '''
 
-# Large, styled tooltip for Horizon vs Loan Term
-HORIZON_TOOLTIP_HTML = '''
-<div class="tooltip-box">ℹ️ <strong>Hover: Horizon vs Loan Term</strong>
-  <div class="tooltip-content">
-    <h4>Horizon vs Loan Term</h4>
-    <div class="hr"></div>
-    <ul>
-      <li><strong>When horizon &lt; loan term:</strong> You’re looking at results before the mortgage is fully paid off. The Borrow path still has a remaining balance (we subtract that in net worth). Example: 15-year horizon with a 30-year loan → Borrow still owes ~half the loan at the end, so Pay Cash often looks better unless markets were strong.</li>
-      <li><strong>When horizon = loan term:</strong> You measure exactly when the loan is fully paid off. The Borrow path’s remaining principal = $0 at the horizon. From this point on, both sides just have investments, so the comparison is “clean”.</li>
-      <li><strong>When horizon &gt; loan term:</strong> Past the payoff date, the Borrow side no longer has debt — and no more monthly mortgage payments. Pay Cash continues monthly investing; Borrow’s upfront lump keeps compounding. This often tilts toward Borrow the longer the horizon runs past payoff.</li>
-    </ul>
-    <div class="hr"></div>
-    <ul>
-      <li><strong>Key insight:</strong> Shorter horizons often favor Pay Cash (less risk, no debt). Longer horizons (beyond payoff) often favor Borrow if markets delivered historical returns, since the upfront lump had more time to work.</li>
-    </ul>
-  </div>
-</div>
-'''
-
-st.markdown(CHART_TOOLTIP_CSS, unsafe_allow_html=True)
 st.subheader("Mortgage & Horizon")
 if mode == "Pay Cash vs Borrow":
     col1, col2, col3, col4 = st.columns(4)
@@ -258,8 +235,7 @@ if mode == "Pay Cash vs Borrow":
     with col3:
         term = st.number_input("Term (months)", min_value=12, max_value=600, value=360, step=12)
     with col4:
-        months = st.number_input("Horizon (months)", min_value=12, max_value=600, value=DEFAULT_MONTHS, step=12)
-        st.markdown(HORIZON_TOOLTIP_HTML, unsafe_allow_html=True)
+        months = st.number_input("Horizon (months)", min_value=12, max_value=600, value=DEFAULT_MONTHS, step=12, help=HORIZON_HELP)
     # Monthly payment (used as contribution in Pay-Cash path while loan active)
     mpmt = amortized_payment(float(principal), float(apr_pct) / 100.0, int(term))
     st.info(f"Calculated monthly payment: ${mpmt:,.2f}")
@@ -272,8 +248,7 @@ else:
     with col3:
         term = st.number_input("Term (months)", min_value=12, max_value=600, value=360, step=12)
     with col4:
-        months = st.number_input("Horizon (months)", min_value=12, max_value=600, value=180, step=12)
-        st.markdown(HORIZON_TOOLTIP_HTML, unsafe_allow_html=True)
+        months = st.number_input("Horizon (months)", min_value=12, max_value=600, value=180, step=12, help=HORIZON_HELP)
     col5, col6 = st.columns(2)
     with col5:
         down_small_pct = st.slider("Smaller Down Payment (%)", 0.0, 40.0, 5.0, step=0.5)
@@ -451,7 +426,7 @@ if st.button("▶ Compute Per-Start Rows + Probability Summary"):
 
             st.subheader("Per-Start Net Worth")
             st.dataframe(df, use_container_width=True)
-            st.markdown(CHART_TOOLTIP_HTML, unsafe_allow_html=True)
+            st.markdown(CHART_TOOLTIP_CSS + CHART_TOOLTIP_HTML, unsafe_allow_html=True)
             st.line_chart(df.set_index("start_date")[["networth_paycash", "networth_borrow"]])
 
             st.download_button(
@@ -492,7 +467,7 @@ if st.button("▶ Compute Per-Start Rows + Probability Summary"):
 
             st.subheader("Per-Start Net Worth")
             st.dataframe(df, use_container_width=True)
-            st.markdown(CHART_TOOLTIP_HTML, unsafe_allow_html=True)
+            st.markdown(CHART_TOOLTIP_CSS + CHART_TOOLTIP_HTML, unsafe_allow_html=True)
             st.line_chart(df.set_index("start_date")[["networth_borrow_more", "networth_bigger_down"]])
 
             st.download_button(
